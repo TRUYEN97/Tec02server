@@ -21,8 +21,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "version")
 public class Version extends Createable<User>{
-	@Column(name = "name", nullable = false, updatable = false)
-	protected String name;
 	@Column(name = "path", nullable = false, updatable = false)
 	private String path;
 	@Column(name = "description", nullable = false, updatable = false)

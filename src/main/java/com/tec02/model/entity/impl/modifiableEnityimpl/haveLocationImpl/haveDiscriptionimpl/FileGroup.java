@@ -8,7 +8,6 @@ import java.util.Set;
 import com.tec02.model.entity.impl.modifiableEnityimpl.File;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.HaveDiscription;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -25,9 +24,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "filegroup")
 public class FileGroup extends HaveDiscription{
-	
-	@Column(name = "name", nullable = false, updatable = false)
-	private String name;
 	
 	@OneToMany(mappedBy = "fileGroup")
 	private Set<File> files = new HashSet<>();

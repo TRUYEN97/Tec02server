@@ -34,8 +34,7 @@ public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> i
 	}
 
 	public D updateDto(Long id, E entity){
-		E entitySaved = update(id, entity);
-		return ModelMapperUtil.map(entitySaved, dtoClass);
+		return convertToDto(update(id, entity));
 	}
 	
 	@Transactional
@@ -105,26 +104,18 @@ public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> i
 
 	@Override
 	public List<D> findAllDtoByIds(List<Long> ids) {
-		List<E> entity = this.findAllByIds(ids);
-		if (entity == null || entity.isEmpty()) {
-			return null;
-		}
-		return ModelMapperUtil.mapAll(entity, dtoClass);
+		return convertToDtos(this.findAllByIds(ids));
 	}
 
 	@Override
 	public List<D> findAllDto() {
-		List<E> entity = this.findAll();
-		if (entity == null || entity.isEmpty()) {
-			return null;
-		}
-		return ModelMapperUtil.mapAll(entity, dtoClass);
+		return convertToDtos(this.findAll());
 	}
 
 	@Override
 	public E findOne(Long id){
 		if (id == null) {
-			return null;
+			throw new RuntimeException(String.format("%s id == null", enityClass.getSimpleName()));
 		}
 		E entity = this.repository.findById(id).orElse(null);
 		if(entity == null) {
@@ -135,14 +126,7 @@ public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> i
 	
 	@Override
 	public D findOneDto(Long id){
-		if (id == null) {
-			return null;
-		}
-		E entity = this.findOne(id);
-		if(entity == null) {
-			throw new RuntimeException("Not found");
-		}
-		return ModelMapperUtil.map(entity, dtoClass);
+		return convertToDto(this.findOne(id));
 	}
 
 	public boolean existsByName(String name) {
@@ -168,30 +152,18 @@ public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> i
 	}
 	
 	public List<D> findAllByNameLikeDto(String name) {
-		List<E> entitys = findAllByNameLike(name);
-		if (entitys == null) {
-			return null;
-		}
-		return ModelMapperUtil.mapAll(entitys, dtoClass);
+		return convertToDtos(findAllByNameLike(name));
 	}
 	
 	public D findOneDtoByName(String name) {
-		E entity = this.findOneByName(name);
-		if(entity == null) {
-			return null;
-		}
-		return ModelMapperUtil.map(entity, dtoClass);
+		return convertToDto(this.findOneByName(name));
 	}
 
 	public List<D> findAllDto(Pageable pageable) {
 		if (pageable == null) {
 			return this.findAllDto();
 		}
-		List<E> entity = this.findAll(pageable);
-		if (entity == null || entity.isEmpty()) {
-			return null;
-		}
-		return ModelMapperUtil.mapAll(entity, dtoClass);
+		return convertToDtos(this.findAll(pageable));
 	}
 	
 	public List<E> findAll(Pageable pageable) {
@@ -203,5 +175,33 @@ public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> i
             return pagedResult.getContent();
         }
 		return null;
+	}
+
+	protected List<E> convertToEntitys(List<D> dtos) {
+		if(dtos == null) {
+			return null;
+		}
+		return ModelMapperUtil.mapAll(dtos, enityClass);
+	}
+	
+	protected List<D> convertToDtos(List<E> entitys) {
+		if(entitys == null) {
+			return null;
+		}
+		return ModelMapperUtil.mapAll(entitys, dtoClass);
+	}
+	
+	protected D convertToDto(E entity) {
+		if(entity == null) {
+			return null;
+		}
+		return ModelMapperUtil.map(entity, dtoClass);
+	}
+	
+	protected E convertToEntity(D dto) {
+		if(dto == null) {
+			return null;
+		}
+		return ModelMapperUtil.map(dto, enityClass);
 	}
 }

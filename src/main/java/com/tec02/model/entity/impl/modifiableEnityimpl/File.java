@@ -26,9 +26,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "file")
 public class File extends BaseModifiableEnity<User> {
-
-	@Column(name = "name", nullable = false)
-	private String name;
 	
 	@OneToMany(mappedBy = "file")
 	@OrderBy("name DESC")
@@ -38,7 +35,7 @@ public class File extends BaseModifiableEnity<User> {
 		versions.add(version);
 	}
 	
-	@Column(name = "path", nullable = false)
+	@Column(name = "path")
 	private String path;
 	
 	@ManyToOne

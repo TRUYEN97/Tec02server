@@ -15,4 +15,6 @@ public interface fileRepo extends IBaseRepo<File> {
 
 	Optional<File> findOneByIdAndFileGroupId(Long fileId, Long fgroundID);
 
+	Optional<File> findOneByFileGroupIdAndNameAndPath(Long fgId, String fileName, String filePath);
+
 }

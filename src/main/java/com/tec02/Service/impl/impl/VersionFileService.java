@@ -23,7 +23,7 @@ public class VersionFileService extends BaseService<VersionDto, Version> {
 	}
 
 	public Version findFirstByFileOrderByCreateTimeDesc(File file) {
-		return this.versionRepo.findFirstByFileOrderByCreateTimeDesc(file);
+		return this.versionRepo.findFirstByFileOrderByCreateTimeDesc(file).orElse(null);
 	}
 
 	public List<Version> findAllByFileIdOrderByCreateTimeDesc(Long id) {
@@ -31,7 +31,19 @@ public class VersionFileService extends BaseService<VersionDto, Version> {
 	}
 
 	public Version findFirstByFileIdOrderByCreateTimeDesc(Long id) {
-		return this.versionRepo.findFirstByFileIdOrderByCreateTimeDesc(id);
+		return this.versionRepo.findFirstByFileIdOrderByCreateTimeDesc(id).orElse(null);
+	}
+	
+	public VersionDto findDtoFirstByFileIdOrderByCreateTimeDesc(Long id) {
+		return convertToDto(this.versionRepo.findFirstByFileIdOrderByCreateTimeDesc(id).orElse(null));
+	}
+
+	public VersionDto findDtoByFileIdAndName(Long id, String version) {
+		return convertToDto(findByFileIdAndName(id, version));
+	}
+	
+	public Version findByFileIdAndName(Long id, String version) {
+		return this.versionRepo.findOneByFileIdAndName(id, version).orElse(null);
 	}
 
 }

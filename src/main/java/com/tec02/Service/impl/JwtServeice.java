@@ -1,12 +1,14 @@
 package com.tec02.Service.impl;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tec02.model.dto.impl.impl.impl.UserDto;
 import com.tec02.model.entity.impl.modifiableEnityimpl.User;
 import com.tec02.util.Util;
@@ -23,8 +25,19 @@ public class JwtServeice {
 	 
 
 	  public String extractUsername(String token) {
-	    return extractClaim(token, Claims::getSubject);
+		  try {
+	            String payload = token.split("\\.")[1];
+	            if (payload == null) {
+	                return null;
+	            }
+	            String payloadDecode = new String(Base64.getDecoder().decode(payload.getBytes()));
+	            return JSONObject.parseObject(payloadDecode).getString("sub");
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        }
 	  }
+	 
 
 	  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 	    final Claims claims = extractAllClaims(token);
@@ -44,7 +57,10 @@ public class JwtServeice {
 
 	  public boolean isTokenValid(String token, User userDetails) {
 		String jwtSaved = userDetails.getUserJwt().getJwt();
-		if(jwtSaved == null || token == null || !Util.md5File(token.getBytes()).equals(jwtSaved)) {
+//		if(jwtSaved == null || token == null || !Util.md5File(token.getBytes()).equals(jwtSaved)) {
+//			return false;
+//		}
+		if(jwtSaved == null || token == null) {
 			return false;
 		}
 	    final String username = extractUsername(token);

@@ -10,7 +10,7 @@ import lombok.Setter;
 @MappedSuperclass
 public abstract class IdNameEntity extends IdEntity{
 
-	@Column(name = "name", nullable = false, unique = true, updatable = false)
+	@Column(name = "name", nullable = false)
 	protected String name;
 	
 	@Override

@@ -36,8 +36,6 @@ public class User extends BaseModifiableEnity<User> implements UserDetails {
 	/**
 	 * 
 	 */
-	@Column(name = "name", nullable = false, unique = true)
-	private String name;
 	@OneToOne
 	@JoinColumn(name = "jwt")
 	private UserJwt userJwt;
