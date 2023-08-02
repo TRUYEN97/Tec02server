@@ -30,4 +30,6 @@ public class ModelMapperUtil {
 	public static <T, E> List<T> mapAll(final Collection<E> listSource, Class<T> clazz ){
 		return listSource.stream().map(source -> map(source, clazz)).collect(Collectors.toList());
 	}
+	
+	
 }

@@ -1,4 +1,4 @@
-package com.tec02.model.dto;
+package com.tec02.model.dto.updownload;
 
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,8 @@ import lombok.ToString;
 @ToString
 public class UploadFileRequest {
 	private Long id;
-	private Long fgroupId;
+	private Long parentId;
+	private Boolean enable;
 	private String description;
 	private String version;
 	private String name;

@@ -7,6 +7,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class HaveDiscription extends HaveLocationDto<String>{
+public abstract class HaveDiscriptionDto extends HaveLocationDto<String>{
 	protected String description;
 }

@@ -11,4 +11,6 @@ import com.tec02.repository.IBaseRepo;
 public interface FileGroupRepository extends IBaseRepo<FileGroup> {
 	@Query("select e from FileGroup e where e.location in ?1 and e.name like ?2")
 	List<FileGroup> findAllByLocationIn(List<Location> ids, String name);
+
+	List<FileGroup> findByProgramsId(Long id);
 }

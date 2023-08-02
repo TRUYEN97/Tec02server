@@ -1,6 +1,8 @@
-package com.tec02.model.dto;
+package com.tec02.model.dto.updownload.impl;
 
 import org.springframework.stereotype.Component;
+
+import com.tec02.model.dto.updownload.FileVersionDto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +14,6 @@ import lombok.ToString;
 @Component
 @NoArgsConstructor
 @ToString
-public class FileVersionDto {
-	private String name;
-	private String path;
+public class FileVersionPathDto extends FileVersionDto {
 	private String localPath;
-	private String md5;
-	private String description;
 }

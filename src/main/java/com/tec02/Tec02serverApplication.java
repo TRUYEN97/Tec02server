@@ -18,6 +18,8 @@ import com.tec02.repository.impl.RoleRepository;
 import com.tec02.repository.impl.UserJwtRepo;
 import com.tec02.repository.impl.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @EnableJpaAuditing(auditorAwareRef="auditorAware")
 @SpringBootApplication
 public class Tec02serverApplication implements CommandLineRunner{
@@ -37,6 +39,7 @@ public class Tec02serverApplication implements CommandLineRunner{
 	}
 
 	@Override
+	@Transactional
 	public void run(String... args) throws Exception {
 		if (userRepository.count() == 0) {
 			User user = new User();

@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 @Getter
 @Component
-public class VersionDto extends CreateableDto<String>{
+public class VersionProgramDto extends CreateableDto<String>{
 	private String path;
 	private String description;
 	private String md5;
-	private String file;
+	private String fileProgram;
 	private boolean enable;
 }

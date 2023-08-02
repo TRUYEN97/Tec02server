@@ -39,7 +39,7 @@ public class User extends BaseModifiableEnity<User> implements UserDetails {
 	@OneToOne
 	@JoinColumn(name = "jwt")
 	private UserJwt userJwt;
-	@Column(name = "userid", nullable = false, unique = true)
+	@Column(name = "userid", updatable = false, unique = true, length = 10)
 	private String userId;
 	@Column(name = "userpass", length = 60)
 	private String password;

@@ -7,6 +7,7 @@ import com.tec02.model.entity.impl.BaseModifiableEnity;
 import com.tec02.model.entity.impl.Version;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileGroup;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -27,7 +28,7 @@ import lombok.Setter;
 @Table(name = "file")
 public class File extends BaseModifiableEnity<User> {
 	
-	@OneToMany(mappedBy = "file")
+	@OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
 	@OrderBy("name DESC")
 	private List<Version> versions = new ArrayList<>();
 	

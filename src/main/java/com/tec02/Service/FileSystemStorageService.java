@@ -1,5 +1,6 @@
 package com.tec02.Service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tec02.config.StorageProperties;
-import com.tec02.util.Util;
 
 @Service
 public class FileSystemStorageService {
@@ -21,21 +21,26 @@ public class FileSystemStorageService {
 	private StorageProperties properties;
 
 	public String storeFile(MultipartFile file, String path) {
-		Path localPath = null;
+		return store(file, this.properties.resolveFile(path));
+	}
+	
+	public String storeData(MultipartFile file, String path) {
+		return store(file, this.properties.resolveData(path));
+	}
+
+	private String store(MultipartFile file, Path path) {
 		try {
-			Util.checkDir(path);
 			if (file.isEmpty()) {
 				throw new RuntimeException("Failed to store empty file " + file.getOriginalFilename());
 			}
-			localPath = this.properties.resolveFile(path);
-			if (!Files.exists(localPath.getParent())) {
-				Files.createDirectories(localPath.getParent());
+			if (!Files.exists(path.getParent())) {
+				Files.createDirectories(path.getParent());
 			}
-			Files.copy(file.getInputStream(), localPath, StandardCopyOption.REPLACE_EXISTING);
-			return localPath.toString();
+			Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+			return path.toString();
 		} catch (Exception e) {
-			if (localPath != null) {
-				localPath.toFile().deleteOnExit();
+			if (path != null) {
+				path.toFile().deleteOnExit();
 			}
 			throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
 		}
@@ -51,6 +56,33 @@ public class FileSystemStorageService {
 			}
 		} catch (Exception ex) {
 			throw new RuntimeException(ex.getLocalizedMessage());
+		}
+	}
+
+	public void deleteFile(String path) throws Exception {
+		File file = this.properties.resolveFile(path).toFile();
+		if (file.exists() && !file.delete()) {
+			throw new Exception(String.format("Delete file failed! %s", path));
+		}
+		clearStore(file);
+	}
+	
+	public void deleteData(String path) throws Exception {
+		File file = this.properties.resolveData(path).toFile();
+		if (file.exists() && !file.delete()) {
+			throw new Exception(String.format("Delete data failed! %s", path));
+		}
+		clearStore(file);
+	}
+
+	private void clearStore(File file) {
+		File perent = file.getParentFile();
+		if (perent != null) {
+			String[] children = perent.list();
+			if (children == null || children.length == 0) {
+				perent.delete();
+				clearStore(perent);
+			}
 		}
 	}
 }

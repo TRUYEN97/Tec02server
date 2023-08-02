@@ -7,6 +7,7 @@ import com.tec02.model.entity.Createable;
 import com.tec02.model.entity.impl.modifiableEnityimpl.User;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.Pc;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileGroup;
+import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileProgram;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.Program;
 
 import jakarta.persistence.Entity;
@@ -48,6 +49,17 @@ public class Location extends Createable<User> {
 
 	public void removePc(Pc pc) {
 		this.pcs.remove(pc);
+	}
+	
+	@OneToMany(mappedBy = "location")
+	private Set<FileProgram> filePrograms = new HashSet<>();
+	
+	public void addFileProgram(FileProgram groupFile) {
+		this.filePrograms.add(groupFile);
+	}
+
+	public void removeFileProgram(FileProgram groupFile) {
+		this.filePrograms.remove(groupFile);
 	}
 
 	@OneToMany(mappedBy = "location")

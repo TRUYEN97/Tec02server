@@ -5,11 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.HaveDiscription;
-import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.Pc;
+import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.HaveDescription;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,11 +23,29 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "program")
-public class Program extends HaveDiscription{
+public class Program extends HaveDescription{
+
+	@Column(name = "password", length = 20)
+	private String password;
 	
+	@Column(name = "awaysupdate", nullable = false)
+	private boolean awaysUpdate;
 	
-	@ManyToMany(mappedBy = "programs")
-	private List<FileGroup> groupFiles = new ArrayList<>();
+	@Column(name = "enable", nullable = false)
+	private boolean enable;
+	
+	@Column(name = "command")
+	private String command;
+	
+	@ManyToOne
+	@JoinColumn(name = "fileprogram")
+	private FileProgram fileProgram;
+	
+	@ManyToMany
+	@JoinTable(name = "group_program",
+	joinColumns = @JoinColumn(name = "program_id"),
+	inverseJoinColumns = @JoinColumn(name = "group_id"))
+	private Set<FileGroup> groupFiles = new HashSet<>();
 	
 	public void addGroupFile(FileGroup groupFile) {
 		this.groupFiles.add(groupFile);
@@ -34,14 +55,24 @@ public class Program extends HaveDiscription{
 		this.groupFiles.remove(groupFile);
 	}
 	
-	@ManyToMany(mappedBy = "pcPrograms")
-	private Set<Pc> pcs = new HashSet<>();
-
-	public void addPc(Pc pc) {
-		this.pcs.add(pc);
+	public void removeAllGroupFile(List<FileGroup> groupFiles) {
+		this.groupFiles.removeAll(groupFiles);
 	}
 
-	public void removePc(Pc pc) {
-		this.pcs.remove(pc);
+	public void addAllGroupFile(List<FileGroup> fileGroups) {
+		this.groupFiles.addAll(fileGroups);
+	}
+
+	public void removeAllGroupFileIds(List<Long> ids) {
+		if(ids == null || ids.isEmpty() ||groupFiles == null || groupFiles.isEmpty()) {
+			return;
+		}
+		List<FileGroup> removes = new ArrayList<>();
+		for (FileGroup group : groupFiles) {
+			if(ids.contains(group.getId())) {
+				removes.add(group);
+			}
+		}
+		groupFiles.removeAll(removes);
 	}
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tec02.Service.impl.BaseService;
 import com.tec02.Service.impl.impl.LocationService;
-import com.tec02.api.v1.BaseApiV1;
 import com.tec02.model.dto.LocationRequest;
 import com.tec02.model.dto.RequestDto;
 import com.tec02.model.dto.ResponseDto;
@@ -22,30 +21,28 @@ import com.tec02.model.entity.impl.Location;
 import com.tec02.model.entity.impl.modifiableEnityimpl.User;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocation;
 
-public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E extends haveLocation<User>> extends BaseApiV1<D, E> {
-	
+import lombok.Setter;
+
+@Setter
+public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E extends haveLocation<User>> {
+
 	@Autowired
-	private LocationService locationService;
-	
+	protected LocationService locationService;
+
 	private boolean isAllLocationElemMustNotBeNull;
-	
+
 	@Autowired
 	private final BaseService<D, E> service;
 
 	protected BaseApiV1Location(BaseService<D, E> service) {
-		super(service);
 		this.service = service;
-	}
-	
-	public void setLocationMustNotBeNull(boolean isLocationMustNotBeNull) {
-		this.isAllLocationElemMustNotBeNull = isLocationMustNotBeNull;
 	}
 
 	private boolean isInvalidLocation(Object pName, Object sName, Object lName) {
-		if(isAllLocationElemMustNotBeNull) {
+		if (isAllLocationElemMustNotBeNull) {
 			return (pName == null || sName == null || lName == null);
-		}else {
-			return (pName == null && sName == null && lName == null);
+		} else {
+			return false;
 		}
 	}
 
@@ -69,6 +66,7 @@ public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E ext
 			D savedDto = this.service.updateDto(entity.getId(), entity);
 			return ResponseDto.toResponse(true, savedDto, "save success!");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
@@ -118,10 +116,9 @@ public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E ext
 			List<D> targetDtos = new ArrayList<>();
 			for (E entity : targets) {
 				locationbase = entity.getLocation();
-				if (locationbase == null || isInvalidLocation(locationbase.getProduct(),
-						locationbase.getStation(),
+				if (locationbase == null || isInvalidLocation(locationbase.getProduct(), locationbase.getStation(),
 						locationbase.getLine())) {
-					delete(entity.getId());
+					this.service.delete(entity.getId());
 					continue;
 				}
 				location = this.locationService.createLocation(locationbase.getProduct().getName(),
@@ -134,6 +131,7 @@ public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E ext
 			}
 			return ResponseDto.toResponse(true, targetDtos, "update ok!");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
@@ -146,18 +144,19 @@ public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E ext
 		try {
 			List<D> dtos;
 			if (pID == null && sID == null && lID == null) {
-				if(name == null) {
+				if (name == null) {
 					dtos = this.service.findAllDto();
-				}else {
+				} else {
 					dtos = this.service.findAllByNameLikeDto(name);
 				}
 			} else {
 				List<Location> locations = this.locationService
-						.findAllLocation(new LocationRequest(pID, sID, lID, null, null));
+							.findAllLocationEquals(new LocationRequest(pID, sID, lID, null, null));
 				dtos = findAllByLocation(locations, name);
 			}
 			return ResponseDto.toResponse(true, dtos, "ok");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
@@ -171,21 +170,22 @@ public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E ext
 		try {
 			List<D> dtos;
 			if (pName == null && sName == null && lName == null) {
-				if(name == null) {
+				if (name == null) {
 					dtos = this.service.findAllDto();
-				}else {
+				} else {
 					dtos = this.service.findAllByNameLikeDto(name);
 				}
-			} else{
-				List<Location> locations = this.locationService.findAllLocation(pName, sName, lName);
+			} else {
+				List<Location> locations = this.locationService.findAllLocationEquals(pName, sName, lName);
 				dtos = findAllByLocation(locations, name);
 			}
 			return ResponseDto.toResponse(true, dtos, "ok");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
-	
+
 	protected abstract List<D> findAllByLocation(List<Location> locations, String name);
 
 }

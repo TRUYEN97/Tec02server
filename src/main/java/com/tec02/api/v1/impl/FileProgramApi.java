@@ -17,25 +17,39 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tec02.Service.impl.impl.FileService;
+import com.tec02.Service.impl.impl.FileProgramService;
+import com.tec02.Service.impl.impl.ProgramService;
 import com.tec02.model.dto.ResponseDto;
-import com.tec02.model.dto.impl.VersionDto;
+import com.tec02.model.dto.impl.VersionProgramDto;
 import com.tec02.model.dto.impl.impl.impl.FileDto;
+import com.tec02.model.dto.impl.impl.impl.impl.impl.FileProgramDto;
+import com.tec02.model.dto.impl.impl.impl.impl.impl.ProgramDto;
 import com.tec02.model.dto.updownload.UploadFileRequest;
 import com.tec02.model.dto.updownload.impl.impl.DownloadFileResponse;
+import com.tec02.model.entity.impl.Location;
+import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileProgram;
 
 @RestController
-@RequestMapping("/api/v1/file")
-public class FileApi {
+@RequestMapping("/api/v1/fileProgram")
+public class FileProgramApi extends BaseApiV1Location<FileProgramDto, FileProgram>{
+	
+	protected FileProgramApi(FileProgramService service) {
+		super(service);
+	}
+	@Autowired
+	private ProgramService programService;
 
 	@Autowired
-	private FileService fileService;
+	private FileProgramService fileProgramService;
 
 	@PostMapping
-	public ResponseEntity<ResponseDto> create(@ModelAttribute("entity") UploadFileRequest entity,
+	public ResponseEntity<ResponseDto> create(@RequestParam(value = "pName", required = false) String pName,
+			@RequestParam(value = "sName", required = false) String sName,
+			@RequestParam(value = "lName", required = false) String lName,
+			@ModelAttribute("entity") UploadFileRequest entity,
 			@RequestPart("file") MultipartFile file) {
 		try {
-			FileDto dto = fileService.upload(entity, file);
+			FileProgramDto dto = fileProgramService.upload(pName, sName, lName, entity, file);
 			return ResponseDto.toResponse(true, dto, "Save succeed!");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -46,7 +60,7 @@ public class FileApi {
 	@GetMapping("/version")
 	public ResponseEntity<ResponseDto> findFileVersions(@RequestParam("id") Long id) {
 		try {
-			List<VersionDto> dtos = fileService.getVersionsDto(id);
+			List<VersionProgramDto> dtos = fileProgramService.getVersionsDto(id);
 			return ResponseDto.toResponse(true, dtos, "Version of id= %s", id);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -55,10 +69,24 @@ public class FileApi {
 	}
 
 	@GetMapping
-	public ResponseEntity<ResponseDto> findFiles(@RequestParam("id") Long id) {
+	public ResponseEntity<ResponseDto> find(@RequestParam("id") Long id) {
 		try {
-			List<FileDto> dtos = fileService.findAllByFileGroupIdDto(id);
+			FileProgramDto dtos = fileProgramService.findOneDto(id);
 			return ResponseDto.toResponse(true, dtos, "ok");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+	
+	@GetMapping("/program/location")
+	public ResponseEntity<ResponseDto> findAllWithProgramLocation(
+			@RequestParam(value = "id", required = false) Long id) {
+		try {
+			ProgramDto programDto = this.programService.findOneDto(id);
+			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
+					programDto.getStation(), programDto.getLine());
+			return ResponseDto.toResponse(true, this.fileProgramService.findAllByLocation(locations, null), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
@@ -69,7 +97,7 @@ public class FileApi {
 	public ResponseEntity<Resource> downloadFile(@RequestParam("id") Long id,
 			@RequestParam(name="version", required = false) String version) {
 		try {
-			DownloadFileResponse fileResponse = this.fileService.downloadFile(id, version);
+			DownloadFileResponse fileResponse = this.fileProgramService.downloadFile(id, version);
 			Resource resource = fileResponse.getResource();
 			return ResponseDto.toDownloadResponse(fileResponse.getHeaders(), resource);
 		} catch (Exception e) {
@@ -79,9 +107,9 @@ public class FileApi {
 	}
 	
 	@DeleteMapping
-	public ResponseEntity<ResponseDto> delete(@RequestParam(value = "id", required = false) List<Long> ids) {
+	public ResponseEntity<ResponseDto> delete(@RequestParam(value = "id", required = false) Long... ids) {
 		try {
-			this.fileService.deleteFiles(ids);
+			this.fileProgramService.deleteFiles(ids);
 			return ResponseDto.toResponse(true, ids, "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -92,12 +120,17 @@ public class FileApi {
 	@PutMapping
 	public ResponseEntity<ResponseDto> updateFilePath(@RequestBody UploadFileRequest entity) {
 		try {
-			FileDto dto = fileService.updateFilePath(entity);
+			FileDto dto = fileProgramService.updateFilePath(entity);
 			return ResponseDto.toResponse(true, dto, "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
+	}
+
+	@Override
+	protected List<FileProgramDto> findAllByLocation(List<Location> locations, String name) {
+		return this.fileProgramService.findAllByLocation(locations, name);
 	}
 
 }

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class HaveDiscription extends haveLocation<User> {
-	@Column(name = "description", nullable = false)
+public abstract class HaveDescription extends haveLocation<User> {
+	@Column(name = "description", nullable = false, updatable = false, columnDefinition = "nvarchar(255)")
 	protected String description;
 }

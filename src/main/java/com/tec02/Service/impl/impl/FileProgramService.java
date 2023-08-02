@@ -12,78 +12,79 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.tec02.Service.FileSystemStorageService;
 import com.tec02.Service.impl.BaseService;
-import com.tec02.model.dto.impl.VersionDto;
+import com.tec02.model.dto.impl.VersionProgramDto;
 import com.tec02.model.dto.impl.impl.impl.FileDto;
+import com.tec02.model.dto.impl.impl.impl.impl.impl.FileProgramDto;
 import com.tec02.model.dto.updownload.FileVersionDto;
 import com.tec02.model.dto.updownload.UploadFileRequest;
 import com.tec02.model.dto.updownload.impl.FileVersionPathDto;
 import com.tec02.model.dto.updownload.impl.impl.DownloadFileResponse;
-import com.tec02.model.entity.impl.Version;
-import com.tec02.model.entity.impl.modifiableEnityimpl.File;
-import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileGroup;
-import com.tec02.repository.impl.FileGroupRepository;
-import com.tec02.repository.impl.fileRepo;
+import com.tec02.model.entity.impl.Location;
+import com.tec02.model.entity.impl.VersionProgram;
+import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.haveDiscriptionimpl.FileProgram;
+import com.tec02.repository.impl.VersionFileProgramRepo;
+import com.tec02.repository.impl.fileProgramRepo;
 import com.tec02.util.ModelMapperUtil;
 import com.tec02.util.Util;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class FileService extends BaseService<FileDto, File> {
+public class FileProgramService extends BaseService<FileProgramDto, FileProgram> {
 
 	@Autowired
 	private FileSystemStorageService storageService;
 
 	@Autowired
-	private FileGroupRepository fileGroupRepository;
+	private LocationService locationService;
 
 	@Autowired
-	private fileRepo fileRepo;
+	private fileProgramRepo fileProgramRepo;
 
 	@Autowired
-	private VersionFileService versionFileService;
+	private VersionFileProgramRepo versionFileProgramRepo;
 
-	protected FileService(fileRepo repository) {
-		super(repository, FileDto.class, File.class);
+	protected FileProgramService(fileProgramRepo repository) {
+		super(repository, FileProgramDto.class, FileProgram.class);
 	}
 
 	@Transactional
-	public FileDto upload(UploadFileRequest entity, MultipartFile multipartFile) {
+	public FileProgramDto upload(String pName, String sName, String lName, UploadFileRequest entity,
+			MultipartFile multipartFile) {
 		String version = entity.getVersion();
 		String fileName = entity.getName();
 		String filePath = entity.getDir();
-		Long fgroupID = entity.getParentId();
+		String des = entity.getDescription();
 		Long fileId = entity.getId();
 		Util.checkFilePath(fileName, filePath);
 		filePath = Path.of(filePath).toString();
-		if (fgroupID == null) {
-			throw new RuntimeException("Invalid fgroupID, value == null");
-		}
 		if (multipartFile.isEmpty()) {
 			throw new RuntimeException("Failed to store empty file " + multipartFile.getOriginalFilename());
 		}
 		if (Util.isInvalidVersion(version)) {
 			throw new RuntimeException(String.format("version(%s) format not match x.x.x", version));
 		}
-		if (entity.getDescription() == null || entity.getDescription().isBlank()) {
+		if (des == null || des.isBlank()) {
 			throw new RuntimeException(String.format("invalid description"));
 		}
-		FileGroup fileGroup;
-		if (fgroupID == null || (fileGroup = this.fileGroupRepository.findById(fgroupID).orElse(null)) == null) {
-			throw new RuntimeException(String.format("Not found file-group by id = %s", fgroupID));
-		}
-		File file;
-		if ((file = this.findOneByIdAndFileGroupId(fileId, fgroupID)) == null
-				&& (file = this.findOneByFileGroupAndNameAndPath(fileGroup, fileName, filePath)) == null) {
-			file = new File();
+		FileProgram file;
+		if ((file = this.findOneById(fileId)) == null
+				&& (file = this.findOneByNameAndPath(fileName, filePath)) == null) {
+			Location location = this.locationService.createLocation(pName, sName, lName);
+			if (location == null) {
+				throw new RuntimeException(String.format("invalid location"));
+			}
+			file = new FileProgram();
 			file.setName(fileName);
 			file.setPath(filePath);
-			file.setFileGroup(fileGroup);
+			file.setLocation(location);
+			file.setDescription(des);
 			file = update(file.getId(), file);
 		}
 		String dir = null;
-		Version LastVersion;
-		if ((LastVersion = this.versionFileService.findFirstByFileIdOrderByCreateTimeDesc(file.getId())) != null) {
+		VersionProgram LastVersion;
+		if ((LastVersion = this.versionFileProgramRepo.findFirstByFileProgramIdOrderByCreateTimeDesc(file.getId())
+				.orElse(null)) != null) {
 			String oldVersion = LastVersion.getName();
 			if (Util.isInvalidVersion(oldVersion)) {
 				throw new RuntimeException(String.format("Last version(%s) format not match x.x.x", oldVersion));
@@ -93,19 +94,19 @@ public class FileService extends BaseService<FileDto, File> {
 			}
 			dir = StringUtils.cleanPath(String.format("%s/%s", Path.of(LastVersion.getPath()).getParent(), version));
 		} else {
-			dir = StringUtils.cleanPath(String.format("%s_%s/%s/%s/%s", fileGroup.getId(), fileGroup.getName(),
-					entity.getName(), System.currentTimeMillis(), version));
+			dir = StringUtils.cleanPath(String.format("File/%s_program/%s/%s/%s", file.getId(), entity.getName(),
+					System.currentTimeMillis(), version));
 		}
 		String localFilePath = storageService.storeFile(multipartFile, dir);
 		try {
-			Version verEntity = new Version();
+			VersionProgram verEntity = new VersionProgram();
 			verEntity.setName(version);
 			verEntity.setPath(localFilePath);
 			verEntity.setMd5(Util.md5File(localFilePath));
 			verEntity.setDescription(Util.subInLength(entity.getDescription(), 255));
-			verEntity.setFile(file);
+			verEntity.setFileProgram(file);
 			verEntity.setEnable(entity.getEnable());
-			versionFileService.updateDto(verEntity.getId(), verEntity);
+			versionFileProgramRepo.save(verEntity);
 			return findOneDto(file.getId());
 		} catch (Exception e) {
 			Path path = Path.of(localFilePath);
@@ -116,90 +117,69 @@ public class FileService extends BaseService<FileDto, File> {
 
 	}
 
-	private File findOneByIdAndFileGroupId(Long fileId, Long fgroundID) {
-		if (fileId == null || fgroundID == null) {
+	private FileProgram findOneById(Long fileId) {
+		if (fileId == null) {
 			return null;
 		}
-		return fileRepo.findOneByIdAndFileGroupId(fileId, fgroundID).orElse(null);
+		return fileProgramRepo.findById(fileId).orElse(null);
 	}
 
-	public File findOneByFileGroupAndNameAndPath(FileGroup fileGroup, String fileName, String fileDir) {
-		return fileRepo.findOneByFileGroupAndNameAndPath(fileGroup, fileName, fileDir).orElse(null);
+	public FileProgram findOneByNameAndPath(String fileName, String fileDir) {
+		return fileProgramRepo.findOneByNameAndPath(fileName, fileDir).orElse(null);
 	}
 
-	public File findOneByFileGroupIdAndNameAndPath(Long fgId, String fileName, String filePath) {
-		return fileRepo.findOneByFileGroupIdAndNameAndPath(fgId, fileName, filePath).orElse(null);
-	}
-
-	public List<VersionDto> getVersionsDto(Long id) {
-		List<Version> versions = getVersions(id);
+	public List<VersionProgramDto> getVersionsDto(Long id) {
+		List<VersionProgram> versions = getVersions(id);
 		if (versions == null) {
 			return null;
 		}
-		return ModelMapperUtil.mapAll(versions, VersionDto.class);
+		return ModelMapperUtil.mapAll(versions, VersionProgramDto.class);
 	}
 
-	public List<Version> getVersions(Long id) {
-		return this.versionFileService.findAllByFileIdOrderByCreateTimeDesc(id);
-	}
-
-	public List<File> findAllByFileGroupId(Long id) {
-		return this.fileRepo.findAllByFileGroupId(id);
-	}
-
-	public List<FileDto> findAllByFileGroupIdDto(Long id) {
-		List<File> entitys = findAllByFileGroupId(id);
-		if (entitys == null) {
-			return null;
-		}
-		return ModelMapperUtil.mapAll(entitys, FileDto.class);
+	public List<VersionProgram> getVersions(Long id) {
+		return this.versionFileProgramRepo.findAllByFileProgramIdOrderByCreateTimeDesc(id);
 	}
 
 	public FileDto updateFilePath(UploadFileRequest entity) {
-		System.out.println(entity);
-		Long fgId = entity.getParentId();
 		Long fId = entity.getId();
 		String fileName = entity.getName();
 		String filePath = entity.getDir();
 		Boolean enable = entity.getEnable();
 		Util.checkFilePath(fileName, filePath);
 		filePath = Path.of(filePath).toString();
-		if (fgId == null) {
-			throw new RuntimeException("file group id == null!");
-		}
 		if (fId == null) {
 			throw new RuntimeException("file id == null!");
 		}
-		File file = this.findOneByFileGroupIdAndNameAndPath(fgId, fileName, filePath);
+		FileProgram file = this.findOneByNameAndPath(fileName, filePath);
 		if (file != null) {
 			if (file.getId() != fId) {
 				throw new RuntimeException("file path has exists!");
 			}
 		} else {
-			file = this.findOneByIdAndFileGroupId(fId, fgId);
+			file = this.findOneById(fId);
 		}
 		if (file == null) {
-			throw new RuntimeException(String.format("file not exists! file id: %s, file group id: %s", fId, fgId));
+			throw new RuntimeException(String.format("file not exists! file id: %s", fId));
 		}
-		List<Version> versions = file.getVersions();
+		List<VersionProgram> versions = file.getVersions();
 		if (versions != null && !versions.isEmpty()) {
-			Version version = versions.get(0);
+			VersionProgram version = versions.get(0);
 			if (!version.isEnable() && enable != null && enable) {
 				version.setEnable(true);
 			}
 		}
 		file.setName(fileName);
 		file.setPath(filePath);
-		return ModelMapperUtil.map(fileRepo.save(file), FileDto.class);
+		return ModelMapperUtil.map(fileProgramRepo.save(file), FileDto.class);
 	}
 
 	public FileVersionPathDto getFileVersion(Long id, String version) {
-		FileDto fileDto = this.findOneDto(id);
-		VersionDto versionDto;
+		FileProgramDto fileDto = this.findOneDto(id);
+		VersionProgram versionDto;
 		if (version == null) {
-			versionDto = this.versionFileService.findDtoFirstByFileIdOrderByCreateTimeDesc(id);
+			versionDto = this.versionFileProgramRepo.findFirstByFileProgramIdOrderByCreateTimeDesc(id).orElse(null);
 		} else {
-			versionDto = this.versionFileService.findDtoByFileIdAndName(id, version);
+			versionDto = this.versionFileProgramRepo.findOneByFileProgramIdAndName(id, version).orElse(null);
 		}
 		if (versionDto == null) {
 			throw new RuntimeException(String.format("Version %s not found!", version));
@@ -227,37 +207,35 @@ public class FileService extends BaseService<FileDto, File> {
 	}
 
 	public void deleteFile(Long id) {
-		File file = this.findOne(id);
+		FileProgram file = this.findOne(id);
 		if (file == null) {
 			return;
 		}
 		try {
-			for (Version version : file.getVersions()) {
+			for (VersionProgram version : file.getVersions()) {
 				deleteVersion(version);
 			}
-			this.fileRepo.deleteById(id);
+			this.fileProgramRepo.deleteById(id);
 		} catch (Exception e) {
 			throw new RuntimeException(String.format("delete file id = %s failed!", id), e);
 		}
 	}
 
 	@Transactional
-	private void deleteVersion(Version version) throws Exception {
-		this.versionFileService.delete(version.getId());
+	private void deleteVersion(VersionProgram version) throws Exception {
+		this.versionFileProgramRepo.deleteById(version.getId());
 		this.storageService.deleteFile(version.getPath());
 	}
 
-	public List<Long> findAllIdByFileGroupId(Long id) {
-		if (id == null) {
-			throw new RuntimeException("program id == null!");
-		}
-		return this.fileRepo.findAllIdByFileGroupId(id);
-	}
-
-	public void deleteFiles(List<Long> ids) {
+	public void deleteFiles(Long... ids) {
 		for (Long id : ids) {
 			deleteFile(id);
 		}
+	}
+
+	public List<FileProgramDto> findAllByLocation(List<Location> locations, String name) {
+		name = String.format("%%%s%%", name == null ? "" : name);
+		return convertToDtos(this.fileProgramRepo.findAllByLocationIn(locations, name));
 	}
 
 }

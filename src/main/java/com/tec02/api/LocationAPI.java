@@ -44,7 +44,7 @@ public class LocationAPI {
 			if (pID == null && sID == null && lID == null) {
 				locations = this.locationSercive.findAll();
 			} else {
-				locations = this.locationSercive.findAllLocation(new LocationRequest(pID, sID, lID, null, null));
+				locations = this.locationSercive.findAllLocationEquals(new LocationRequest(pID, sID, lID, null, null));
 			}
 			return ResponseDto.toResponse(true, ModelMapperUtil.mapAll(locations, LocationDto.class), "ok");
 		} catch (Exception e) {
