@@ -30,6 +30,8 @@ public class SecurityConfig {
 	      .authorizeHttpRequests()
 	      .requestMatchers( HttpMethod.POST, "/api/v1/auth/**")
 	      .permitAll()
+	      .requestMatchers( HttpMethod.PUT, "/api/v1/pc/info/*")
+	      .permitAll()
 	      .requestMatchers( HttpMethod.GET)
 	      .permitAll()
 	      .anyRequest()

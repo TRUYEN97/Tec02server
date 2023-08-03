@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tec02.Service.impl.impl.FileProgramService;
-import com.tec02.Service.impl.impl.ProgramService;
 import com.tec02.model.dto.ResponseDto;
 import com.tec02.model.dto.impl.VersionProgramDto;
 import com.tec02.model.dto.impl.impl.impl.FileDto;
 import com.tec02.model.dto.impl.impl.impl.impl.impl.FileProgramDto;
-import com.tec02.model.dto.impl.impl.impl.impl.impl.ProgramDto;
 import com.tec02.model.dto.updownload.UploadFileRequest;
 import com.tec02.model.dto.updownload.impl.impl.DownloadFileResponse;
 import com.tec02.model.entity.impl.Location;
@@ -36,8 +34,6 @@ public class FileProgramApi extends BaseApiV1Location<FileProgramDto, FileProgra
 	protected FileProgramApi(FileProgramService service) {
 		super(service);
 	}
-	@Autowired
-	private ProgramService programService;
 
 	@Autowired
 	private FileProgramService fileProgramService;
@@ -73,20 +69,6 @@ public class FileProgramApi extends BaseApiV1Location<FileProgramDto, FileProgra
 		try {
 			FileProgramDto dtos = fileProgramService.findOneDto(id);
 			return ResponseDto.toResponse(true, dtos, "ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
-		}
-	}
-	
-	@GetMapping("/program/location")
-	public ResponseEntity<ResponseDto> findAllWithProgramLocation(
-			@RequestParam(value = "id", required = false) Long id) {
-		try {
-			ProgramDto programDto = this.programService.findOneDto(id);
-			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
-					programDto.getStation(), programDto.getLine());
-			return ResponseDto.toResponse(true, this.fileProgramService.findAllByLocation(locations, null), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());

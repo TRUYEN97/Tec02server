@@ -8,14 +8,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.tec02.Service.IBaseService;
-import com.tec02.model.dto.IdNameDto;
-import com.tec02.model.entity.IdNameEntity;
+import com.tec02.model.dto.IidNameDto;
+import com.tec02.model.entity.IidName;
 import com.tec02.repository.IBaseRepo;
 import com.tec02.util.ModelMapperUtil;
 
 import jakarta.transaction.Transactional;
 
-public abstract class BaseService<D extends IdNameDto, E extends IdNameEntity> implements IBaseService<D, E> {
+public abstract class BaseService<D extends IidNameDto, E extends IidName> implements IBaseService<D, E> {
 
 	private IBaseRepo<E> repository;
 	protected Class<D> dtoClass;

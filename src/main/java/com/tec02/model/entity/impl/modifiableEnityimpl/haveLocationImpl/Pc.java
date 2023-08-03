@@ -1,12 +1,18 @@
 package com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl;
 
-import com.tec02.model.entity.PcInformation;
-import com.tec02.model.entity.impl.modifiableEnityimpl.User;
-import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocation;
+import java.time.Instant;
 
+import org.springframework.data.annotation.LastModifiedDate;
+
+import com.tec02.model.entity.Createable;
+import com.tec02.model.entity.IHaveLocation;
+import com.tec02.model.entity.impl.Location;
+import com.tec02.model.entity.impl.modifiableEnityimpl.User;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +25,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "pc")
-public class Pc extends haveLocation<User> {
+public class Pc extends Createable<User> implements IHaveLocation {
 	
-	@OneToOne
-	@JoinColumn(name = "pcInformation_id")
-	private PcInformation pcInformation;
+	@LastModifiedDate
+	@Column(name = "modifytime", nullable = false)
+	protected Instant modifyTime;
+	
+	@ManyToOne
+	@JoinColumn(name = "location_id")
+	protected Location location;
+	
+	@Column(name = "os")
+	private String os;
+	
+	@Column(name = "mac")
+	private String mac;
+	
+	@Column(name = "ip")
+	private String ip;
 
 }

@@ -13,18 +13,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tec02.Service.impl.BaseService;
 import com.tec02.Service.impl.impl.LocationService;
+import com.tec02.model.dto.IHaveLocationDto;
 import com.tec02.model.dto.LocationRequest;
 import com.tec02.model.dto.RequestDto;
 import com.tec02.model.dto.ResponseDto;
-import com.tec02.model.dto.impl.impl.impl.HaveLocationDto;
+import com.tec02.model.entity.IHaveLocation;
 import com.tec02.model.entity.impl.Location;
-import com.tec02.model.entity.impl.modifiableEnityimpl.User;
-import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocation;
 
 import lombok.Setter;
 
 @Setter
-public abstract class BaseApiV1Location<D extends HaveLocationDto<String>, E extends haveLocation<User>> {
+public abstract class BaseApiV1Location<D extends IHaveLocationDto, E extends IHaveLocation> {
 
 	@Autowired
 	protected LocationService locationService;

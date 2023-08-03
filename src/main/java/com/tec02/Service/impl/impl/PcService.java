@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tec02.Service.impl.BaseService;
+import com.tec02.model.dto.PcInformation;
 import com.tec02.model.dto.impl.impl.impl.impl.PcDto;
-import com.tec02.model.entity.PcInformation;
 import com.tec02.model.entity.impl.Location;
 import com.tec02.model.entity.impl.modifiableEnityimpl.haveLocationImpl.Pc;
 import com.tec02.repository.impl.PcRepository;
@@ -23,11 +23,17 @@ public class PcService extends BaseService<PcDto, Pc> {
 	@Autowired
 	private PcRepository pcRepository;
 
-	public Pc updateInfo(Long pcID, PcInformation pcInfo) throws Exception {
-		Pc pc = this.findOne(pcID);
-		PcInformation pcInfoOld = pc.getPcInformation();
-		ModelMapperUtil.update(pcInfo, pcInfoOld);
-		pc.setPcInformation(pcInfoOld);
+	public Pc updateInfo(String pcName, PcInformation pcInfo) {
+		if(pcName == null) {
+			pcName = pcInfo.getName();
+		}
+		Pc pc = this.findOneByName(pcName);
+		if (pc == null) {
+			throw new RuntimeException(String.format("pcname not found! %s", pcName));
+		}
+		pc.setOs(pcInfo.getOs());
+		pc.setMac(pcInfo.getMac());
+		pc.setIp(pcInfo.getIp());
 		return this.pcRepository.save(pc);
 	}
 

@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
-import com.tec02.model.dto.IdNameDto;
-import com.tec02.model.entity.IdNameEntity;
+import com.tec02.model.dto.IidNameDto;
+import com.tec02.model.entity.IidName;
 
-public interface IBaseService<D extends IdNameDto, E extends IdNameEntity> {
+public interface IBaseService<D extends IidNameDto, E extends IidName> {
 	
 	D update(Long id, D dto);
 	

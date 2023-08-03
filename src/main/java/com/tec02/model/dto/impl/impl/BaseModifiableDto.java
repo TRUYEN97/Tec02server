@@ -15,7 +15,7 @@ public abstract class BaseModifiableDto<U> extends CreateableDto<U> {
 	protected U modifyBy;
 	protected Instant modifyTime;
 	public String getModifyTime(){
-		if(createTime == null) {
+		if(modifyTime == null) {
 			return null;
 		}
 		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")

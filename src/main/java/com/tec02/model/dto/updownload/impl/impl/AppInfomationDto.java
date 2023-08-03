@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.tec02.model.dto.updownload.impl.FileInfomationDto;
+import com.tec02.model.dto.updownload.impl.AppFileInfomationDto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ public class AppInfomationDto {
 	private String password;
 	private String description;
 	private boolean awaysUpdate;
-	private FileInfomationDto fileProgram;
+	private AppFileInfomationDto fileProgram;
 	private boolean enable;
-	private Map<Long, FileInfomationDto> files = new HashMap<>();
+	private Map<Long, AppFileInfomationDto> files = new HashMap<>();
 }

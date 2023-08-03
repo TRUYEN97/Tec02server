@@ -18,7 +18,7 @@ import lombok.Setter;
 @Setter	
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Createable<U> extends IdNameEntity{
+public abstract class Createable<U> extends IdNameEntity implements IidName{
 	@CreatedBy
 	@ManyToOne
 	@JoinColumn(name = "createby", updatable = false)

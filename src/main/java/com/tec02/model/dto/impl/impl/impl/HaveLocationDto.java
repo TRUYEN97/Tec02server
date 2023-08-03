@@ -1,12 +1,13 @@
 package com.tec02.model.dto.impl.impl.impl;
 
+import com.tec02.model.dto.IHaveLocationDto;
 import com.tec02.model.dto.impl.impl.BaseModifiableDto;
 import com.tec02.model.dto.impl.impl.LocationDto;
 
 import lombok.Setter;
 
 @Setter
-public abstract class HaveLocationDto<U> extends BaseModifiableDto<U> {
+public abstract class HaveLocationDto<U> extends BaseModifiableDto<U> implements IHaveLocationDto{
 	protected LocationDto location;
 
 	public String getProduct() {

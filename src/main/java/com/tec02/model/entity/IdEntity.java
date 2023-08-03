@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter	
 @MappedSuperclass
-public abstract class IdEntity {
+public abstract class IdEntity{
 	@Id
 	@Column(name = "id", updatable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

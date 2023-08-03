@@ -1,6 +1,5 @@
 package com.tec02.Service.impl.impl;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.tec02.Service.impl.BaseService;
 import com.tec02.model.dto.RequestDto;
 import com.tec02.model.dto.impl.impl.impl.impl.impl.ProgramDto;
-import com.tec02.model.dto.updownload.impl.FileInfomationDto;
+import com.tec02.model.dto.updownload.impl.AppFileInfomationDto;
 import com.tec02.model.dto.updownload.impl.impl.AppInfomationDto;
 import com.tec02.model.entity.impl.Location;
 import com.tec02.model.entity.impl.Version;
@@ -79,8 +78,8 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 		return convertToDto(this.programRepo.save(program));
 	}
 
-	public Map<Long, Map<Long, FileInfomationDto>> getAllProgramsFileByIds(Collection<Long> ids) {
-		Map<Long, Map<Long, FileInfomationDto>> maps = new HashMap<>();
+	public Map<Long, Map<Long, AppFileInfomationDto>> getAllProgramsFileByIds(Collection<Long> ids) {
+		Map<Long, Map<Long, AppFileInfomationDto>> maps = new HashMap<>();
 		for (Long id : ids) {
 			maps.put(id, getAllProgramsFileById(id));
 		}
@@ -98,12 +97,11 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 			}
 			for (VersionProgram version : fileProgram.getVersions()) {
 				if (version != null && version.isEnable()) {
-					FileInfomationDto fi = new FileInfomationDto();
+					AppFileInfomationDto fi = new AppFileInfomationDto();
 					fi.setId(fileProgram.getId());
+					fi.setAppName(app.getName());
 					fi.setFilename(fileProgram.getName());
-					fi.setFilepath(
-							Path.of(String.format("%s_%s", program.getId(), program.getName()), fileProgram.getPath())
-									.toString());
+					fi.setFilepath( fileProgram.getPath());
 					fi.setVersion(version.getName());
 					fi.setMd5(version.getMd5());
 					fi.setDesciption(version.getDescription());
@@ -119,22 +117,21 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 		return apps;
 	}
 
-	public Map<Long, FileInfomationDto> getAllProgramsFileById(Long id) {
+	public Map<Long, AppFileInfomationDto> getAllProgramsFileById(Long id) {
 		Program program = this.findOne(id);
 		if (program == null) {
 			throw new RuntimeException(String.format("program id not existe!, id = %s", id));
 		}
-		Map<Long, FileInfomationDto> versions = new HashMap<>();
+		Map<Long, AppFileInfomationDto> versions = new HashMap<>();
 		for (FileGroup fileGroup : program.getGroupFiles()) {
 			for (File file : fileGroup.getFiles()) {
 				for (Version version : file.getVersions()) {
 					if (version != null && version.isEnable()) {
-						FileInfomationDto fi = new FileInfomationDto();
+						AppFileInfomationDto fi = new AppFileInfomationDto();
 						fi.setId(file.getId());
+						fi.setAppName(program.getName());
 						fi.setFilename(file.getName());
-						fi.setFilepath(
-								Path.of(String.format("%s_%s", program.getId(), program.getName()), file.getPath())
-										.toString());
+						fi.setFilepath( file.getPath());
 						fi.setVersion(version.getName());
 						fi.setMd5(version.getMd5());
 						fi.setDesciption(version.getDescription());

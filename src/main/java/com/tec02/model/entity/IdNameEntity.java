@@ -6,13 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter	
+@Setter
 @MappedSuperclass
-public abstract class IdNameEntity extends IdEntity{
+public abstract class IdNameEntity extends IdEntity implements IidName {
 
 	@Column(name = "name", nullable = false)
 	protected String name;
-	
+
 	@Override
 	public String toString() {
 		return name;

@@ -21,7 +21,6 @@ public class ProgramDto extends HaveDiscriptionDto {
 	private String fileProgram;
 	
 	private boolean enable;
-	
-	private String command;
+
 	
 }

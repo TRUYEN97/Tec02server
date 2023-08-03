@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdNameDto {
+public class IdNameDto implements IidNameDto{
 	protected Long id;
 	protected String name;
 

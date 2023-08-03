@@ -14,8 +14,9 @@ import lombok.ToString;
 @Component
 @NoArgsConstructor
 @ToString
-public class FileInfomationDto extends FileVersionDto{
+public class AppFileInfomationDto extends FileVersionDto{
 	private Long id;
+	private String appName;
 	private String desciption;
 	private String version;
 }
