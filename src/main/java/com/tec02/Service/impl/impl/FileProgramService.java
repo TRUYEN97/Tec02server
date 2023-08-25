@@ -57,7 +57,7 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 		String des = entity.getDescription();
 		Long fileId = entity.getId();
 		Util.checkFilePath(fileName, filePath);
-		filePath = Path.of(filePath).toString();
+		filePath = filePath == null? "": Path.of(filePath).toString();
 		if (multipartFile.isEmpty()) {
 			throw new RuntimeException("Failed to store empty file " + multipartFile.getOriginalFilename());
 		}
@@ -68,7 +68,7 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 			throw new RuntimeException(String.format("invalid description"));
 		}
 		FileProgram file;
-		if ((file = this.findOneById(fileId)) == null
+		if (fileId == null || (file = this.findOneById(fileId)) == null
 				&& (file = this.findOneByNameAndPath(fileName, filePath)) == null) {
 			Location location = this.locationService.createLocation(pName, sName, lName);
 			if (location == null) {
@@ -94,10 +94,10 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 			}
 			dir = StringUtils.cleanPath(String.format("%s/%s", Path.of(LastVersion.getPath()).getParent(), version));
 		} else {
-			dir = StringUtils.cleanPath(String.format("File/%s_program/%s/%s/%s", file.getId(), entity.getName(),
+			dir = StringUtils.cleanPath(String.format("%s_program/%s/%s/%s", file.getId(), entity.getName(),
 					System.currentTimeMillis(), version));
 		}
-		String localFilePath = storageService.storeFile(multipartFile, dir);
+		String localFilePath = storageService.storeProgram(multipartFile, dir);
 		try {
 			VersionProgram verEntity = new VersionProgram();
 			verEntity.setName(version);
@@ -224,7 +224,7 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 	@Transactional
 	private void deleteVersion(VersionProgram version) throws Exception {
 		this.versionFileProgramRepo.deleteById(version.getId());
-		this.storageService.deleteFile(version.getPath());
+		this.storageService.deleteProgram(version.getPath());
 	}
 
 	public void deleteFiles(Long... ids) {

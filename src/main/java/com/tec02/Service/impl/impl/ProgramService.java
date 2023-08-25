@@ -48,6 +48,23 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 		return convertToDtos(this.programRepo.findAllByLocationIn(locations, name));
 	}
 
+	public ProgramDto addFileProgram(Long id, Long fileProgramID) {
+		Program program = this.findOne(id);
+		FileProgram fileProgram = this.fileProgramService.findOne(fileProgramID);
+		if (fileProgram == null) {
+			return convertToDto(program);
+		} else {
+			program.setFileProgram(fileProgram);
+		}
+		return convertToDto(this.programRepo.save(program));
+	}
+
+	public ProgramDto removeFileProgram(Long id) {
+		Program program = this.findOne(id);
+		program.setFileProgram(null);
+		return convertToDto(this.programRepo.save(program));
+	}
+
 	public ProgramDto addFileGroup(Long id, RequestDto requestDto) {
 		id = id == null ? requestDto.getId() : id;
 		Program program = this.findOne(id);
@@ -56,17 +73,6 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 			return convertToDto(program);
 		} else {
 			program.addAllGroupFile(fileGroups);
-		}
-		return convertToDto(this.programRepo.save(program));
-	}
-
-	public ProgramDto addFileProgram(Long id, Long fileProgramID) {
-		Program program = this.findOne(id);
-		FileProgram fileGroups = this.fileProgramService.findOne(fileProgramID);
-		if (fileGroups == null) {
-			return convertToDto(program);
-		} else {
-			program.setFileProgram(fileGroups);
 		}
 		return convertToDto(this.programRepo.save(program));
 	}
@@ -101,16 +107,16 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 					fi.setId(fileProgram.getId());
 					fi.setAppName(app.getName());
 					fi.setFilename(fileProgram.getName());
-					fi.setFilepath( fileProgram.getPath());
+					fi.setFilepath(fileProgram.getPath());
 					fi.setVersion(version.getName());
 					fi.setMd5(version.getMd5());
-					fi.setDesciption(version.getDescription());
+					fi.setDescription(version.getDescription());
 					app.setFileProgram(fi);
 					break;
 				}
 			}
 			app.setFiles(getAllProgramsFileById(program.getId()));
-			if (app.isEnable() && !app.getFiles().isEmpty()) {
+			if (!app.getFiles().isEmpty() || app.getFileProgram() != null) {
 				apps.add(app);
 			}
 		}
@@ -131,10 +137,10 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 						fi.setId(file.getId());
 						fi.setAppName(program.getName());
 						fi.setFilename(file.getName());
-						fi.setFilepath( file.getPath());
+						fi.setFilepath(file.getPath());
 						fi.setVersion(version.getName());
 						fi.setMd5(version.getMd5());
-						fi.setDesciption(version.getDescription());
+						fi.setDescription(version.getDescription());
 						versions.put(fi.getId(), fi);
 						break;
 					}
@@ -150,6 +156,12 @@ public class ProgramService extends BaseService<ProgramDto, Program> {
 			programs.addAll(location.getPrograms());
 		}
 		return getAllPrograms(programs);
+	}
+
+	public void deletePrograms(Long[] ids) {
+		for (Long id : ids) {
+			this.delete(id);
+		}
 	}
 
 }

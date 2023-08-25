@@ -16,11 +16,13 @@ public class ProgramDto extends HaveDiscriptionDto {
 
 	private String password;
 	
-	private boolean awaysUpdate;
-	
-	private String fileProgram;
+	private boolean alwaysRun;
+
+	private boolean alwaysUpdate;
 	
 	private boolean enable;
+	
+	private String fileProgram;
 
 	
 }

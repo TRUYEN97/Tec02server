@@ -57,9 +57,9 @@ public class JwtServeice {
 
 	  public boolean isTokenValid(String token, User userDetails) {
 		String jwtSaved = userDetails.getUserJwt().getJwt();
-//		if(jwtSaved == null || token == null || !Util.md5File(token.getBytes()).equals(jwtSaved)) {
-//			return false;
-//		}
+		if(jwtSaved == null || token == null || !Util.md5File(token.getBytes()).equals(jwtSaved)) {
+			return false;
+		}
 		if(jwtSaved == null || token == null) {
 			return false;
 		}

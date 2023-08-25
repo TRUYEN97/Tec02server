@@ -86,7 +86,7 @@ public class Util {
 	}
 
 	public static boolean isInvalidVersion(String version) {
-		return version == null || !version.matches("^[0-9].[0-9].[0-9]$");
+		return version == null || !version.matches("^[0-9]+\\.[0-9]+\\.[0-9]+$");
 	}
 
 	public static void checkDir(String filePath) {

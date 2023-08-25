@@ -13,23 +13,23 @@ import lombok.Getter;
 @Component
 @Getter
 public class StorageProperties {
-	private Path appLocation = Path.of("D:/app");
-	private Path dataLocation = Path.of("D:/data");
+	private Path fileLocation = Path.of("C:/appServer/file");
+	private Path programLocation = Path.of("C:/appServer/program");
 	
 	public Path resolveFile(String path) {
 		Path temp = Path.of(path);
-		if(!temp.startsWith(appLocation)) {
+		if(!temp.startsWith(fileLocation)) {
 			Util.checkDir(path);
-			temp = appLocation.resolve(temp);
+			temp = fileLocation.resolve(temp);
 		}
 		return temp;
 	}
 	
-	public Path resolveData(String path) {
+	public Path resolveProgram(String path) {
 		Path temp = Path.of(path);
-		if(!temp.startsWith(dataLocation)) {
+		if(!temp.startsWith(programLocation)) {
 			Util.checkDir(path);
-			temp = dataLocation.resolve(temp);
+			temp = programLocation.resolve(temp);
 		}
 		return temp;
 	}

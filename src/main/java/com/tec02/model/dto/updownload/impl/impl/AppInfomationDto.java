@@ -20,8 +20,9 @@ public class AppInfomationDto {
 	private String name;
 	private String password;
 	private String description;
-	private boolean awaysUpdate;
-	private AppFileInfomationDto fileProgram;
+	private boolean alwaysRun;
+	private boolean alwaysUpdate;
 	private boolean enable;
+	private AppFileInfomationDto fileProgram;
 	private Map<Long, AppFileInfomationDto> files = new HashMap<>();
 }

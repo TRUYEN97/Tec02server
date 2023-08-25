@@ -28,8 +28,11 @@ public class Program extends HaveDescription{
 	@Column(name = "password", length = 20)
 	private String password;
 	
-	@Column(name = "awaysupdate", nullable = false)
-	private boolean awaysUpdate;
+	@Column(name = "alwaysrun", nullable = false)
+	private boolean alwaysRun;
+	
+	@Column(name = "alwaysupdate", nullable = false)
+	private boolean alwaysUpdate;
 	
 	@Column(name = "enable", nullable = false)
 	private boolean enable;

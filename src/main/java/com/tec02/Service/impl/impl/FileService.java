@@ -55,12 +55,9 @@ public class FileService extends BaseService<FileDto, File> {
 		Long fgroupID = entity.getParentId();
 		Long fileId = entity.getId();
 		Util.checkFilePath(fileName, filePath);
-		filePath = Path.of(filePath).toString();
+		filePath = filePath == null? "": Path.of(filePath).toString();
 		if (fgroupID == null) {
 			throw new RuntimeException("Invalid fgroupID, value == null");
-		}
-		if (multipartFile.isEmpty()) {
-			throw new RuntimeException("Failed to store empty file " + multipartFile.getOriginalFilename());
 		}
 		if (Util.isInvalidVersion(version)) {
 			throw new RuntimeException(String.format("version(%s) format not match x.x.x", version));

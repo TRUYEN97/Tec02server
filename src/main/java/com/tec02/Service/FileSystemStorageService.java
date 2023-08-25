@@ -24,15 +24,12 @@ public class FileSystemStorageService {
 		return store(file, this.properties.resolveFile(path));
 	}
 	
-	public String storeData(MultipartFile file, String path) {
-		return store(file, this.properties.resolveData(path));
+	public String storeProgram(MultipartFile file, String path) {
+		return store(file, this.properties.resolveProgram(path));
 	}
 
 	private String store(MultipartFile file, Path path) {
 		try {
-			if (file.isEmpty()) {
-				throw new RuntimeException("Failed to store empty file " + file.getOriginalFilename());
-			}
 			if (!Files.exists(path.getParent())) {
 				Files.createDirectories(path.getParent());
 			}
@@ -67,8 +64,8 @@ public class FileSystemStorageService {
 		clearStore(file);
 	}
 	
-	public void deleteData(String path) throws Exception {
-		File file = this.properties.resolveData(path).toFile();
+	public void deleteProgram(String path) throws Exception {
+		File file = this.properties.resolveProgram(path).toFile();
 		if (file.exists() && !file.delete()) {
 			throw new Exception(String.format("Delete data failed! %s", path));
 		}

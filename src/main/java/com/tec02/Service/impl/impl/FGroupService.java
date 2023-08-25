@@ -51,7 +51,6 @@ public class FGroupService extends BaseService<FileGroupDto, FileGroup> {
 		for (Long id : ids) {
 			this.delete(id);
 		}
-		
 	}
 	
 	public void delete(Long id) {

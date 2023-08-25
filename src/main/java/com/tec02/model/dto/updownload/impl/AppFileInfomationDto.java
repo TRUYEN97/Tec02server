@@ -17,6 +17,6 @@ import lombok.ToString;
 public class AppFileInfomationDto extends FileVersionDto{
 	private Long id;
 	private String appName;
-	private String desciption;
+	private String description;
 	private String version;
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,19 +33,76 @@ public class ProgramApi extends BaseApiV1Location<ProgramDto, Program> {
 		super(service);
 		setAllLocationElemMustNotBeNull(false);
 	}
-	
+
 	@Autowired
 	private PcService pcService;
-	
+
 	@Autowired
 	private FileProgramService fileProgramService;
 
 	@Autowired
 	private ProgramService programService;
-	
+
 	@Autowired
 	private FGroupService groupService;
 
+	@GetMapping("/pcs")
+	public ResponseEntity<ResponseDto> getPcs(@RequestParam(value = "id") Long id) {
+		try {
+			ProgramDto programDto = this.programService.findOneDto(id);
+			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
+					programDto.getStation(), programDto.getLine());
+			return ResponseDto.toResponse(true, this.pcService.findAllByLocation(locations, null), "ok");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+
+	@PutMapping("/fileprogram")
+	public ResponseEntity<ResponseDto> updateProgramFileprogram(
+			@RequestParam(value = "action", required = false) Boolean remove,
+			@RequestParam(value = "id", required = false) Long id, @RequestBody RequestDto requestDto) {
+		try {
+			if (remove == null || !remove) {
+				return ResponseDto.toResponse(true, this.programService.addFileProgram(id, requestDto.getId()), "ok");
+			} else {
+				return ResponseDto.toResponse(true, this.programService.removeFileProgram(id), "ok");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+
+	@GetMapping("/fileprograms")
+	public ResponseEntity<ResponseDto> findAllFileProgram(@RequestParam(value = "id") Long id) {
+		try {
+			ProgramDto programDto = this.programService.findOneDto(id);
+			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
+					programDto.getStation(), programDto.getLine());
+			return ResponseDto.toResponse(true, this.fileProgramService.findAllByLocation(locations, null), "ok");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+
+	@GetMapping("/fileprogram/version")
+	public ResponseEntity<ResponseDto> findAppFileVersions(@RequestParam("id") Long id) {
+		try {
+			Program program = this.programService.findOne(id);
+			FileProgram fileProgram = program.getFileProgram();
+			if (fileProgram == null) {
+				return ResponseDto.toResponse(true, null, "program (%s) not have program file", id);
+			}
+			List<VersionProgramDto> dtos = fileProgramService.getVersionsDto(fileProgram.getId());
+			return ResponseDto.toResponse(true, dtos, "Version of id= %s", id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
 
 	@PutMapping("/fgroup")
 	public ResponseEntity<ResponseDto> updateProgramFgroup(
@@ -62,60 +120,6 @@ public class ProgramApi extends BaseApiV1Location<ProgramDto, Program> {
 		}
 	}
 
-	@GetMapping("/pcs")
-	public ResponseEntity<ResponseDto> getPcs(@RequestParam(value = "id") Long id) {
-		try {
-			ProgramDto programDto = this.programService.findOneDto(id);
-			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
-					programDto.getStation(), programDto.getLine());
-			return ResponseDto.toResponse(true, this.pcService.findAllByLocation(locations, null), "ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
-		}
-	}
-
-	@PutMapping("/fileprogram")
-	public ResponseEntity<ResponseDto> updateProgramFileprogram(@RequestParam(value = "id", required = false) Long id,
-			@RequestBody RequestDto requestDto) {
-		try {
-			return ResponseDto.toResponse(true, this.programService.addFileProgram(id, requestDto.getId()), "ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
-		}
-	}
-	
-	@GetMapping("/fileprograms")
-	public ResponseEntity<ResponseDto> findAllFileProgram(
-			@RequestParam(value = "id") Long id) {
-		try {
-			ProgramDto programDto = this.programService.findOneDto(id);
-			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
-					programDto.getStation(), programDto.getLine());
-			return ResponseDto.toResponse(true, this.fileProgramService.findAllByLocation(locations, null), "ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
-		}
-	}
-	
-	@GetMapping("/fileprogram/version")
-	public ResponseEntity<ResponseDto> findAppFileVersions(@RequestParam("id") Long id) {
-		try {
-			Program program = this.programService.findOne(id);
-			FileProgram fileProgram = program.getFileProgram();
-			if(fileProgram == null) {
-				return ResponseDto.toResponse(true, null, "program (%s) not have program file", id);
-			}
-			List<VersionProgramDto> dtos = fileProgramService.getVersionsDto(fileProgram.getId());
-			return ResponseDto.toResponse(true, dtos, "Version of id= %s", id);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
-		}
-	}
-	
 	@GetMapping("/fgroup")
 	public ResponseEntity<ResponseDto> findWithProgramId(@RequestParam(value = "id") Long id) {
 		try {
@@ -127,8 +131,7 @@ public class ProgramApi extends BaseApiV1Location<ProgramDto, Program> {
 	}
 
 	@GetMapping("/fgroups")
-	public ResponseEntity<ResponseDto> findAllWithProgramLocation(
-			@RequestParam(value = "id") Long id) {
+	public ResponseEntity<ResponseDto> findAllWithProgramLocation(@RequestParam(value = "id") Long id) {
 		try {
 			ProgramDto programDto = this.programService.findOneDto(id);
 			List<Location> locations = this.locationService.findAllLocationEquals(programDto.getProduct(),
@@ -144,6 +147,17 @@ public class ProgramApi extends BaseApiV1Location<ProgramDto, Program> {
 	public ResponseEntity<ResponseDto> updateProgram(@RequestParam(value = "id") Long id, @RequestBody ProgramDto dto) {
 		try {
 			return ResponseDto.toResponse(true, this.programService.update(id, dto), "ok");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<ResponseDto> delete(@RequestParam(value = "id", required = false) Long... ids) {
+		try {
+			this.programService.deletePrograms(ids);
+			return ResponseDto.toResponse(true, ids, "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());

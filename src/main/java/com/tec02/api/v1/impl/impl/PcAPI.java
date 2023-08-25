@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -71,6 +72,23 @@ public class PcAPI extends BaseApiV1Location<PcDto, Pc> {
 				List<Location> locations = this.locationService.findAllLocationEquals(pc.getProduct(), pc.getStation(),
 						pc.getLine());
 				return ResponseDto.toResponse(true, this.programService.getAllProgramsFileByLocations(locations), "ok");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<ResponseDto> delete(@RequestParam(value = "id", required = false) Long... ids) {
+		try {
+			if (ids != null) {
+				for (Long i : ids) {
+					this.pcService.delete(i);
+				}
+				return ResponseDto.toResponse(true, ids, "delete ok");
+			} else {
+				return ResponseDto.toResponse(false, null, "Nothing to delete");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
