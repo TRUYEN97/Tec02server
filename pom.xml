@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.tec02</groupId>
 	<artifactId>teco2</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.7</version>
 	<name>tec02server</name>
 	<description>TE C02 Server</description>
 	<properties>
@@ -111,7 +111,28 @@
 	</dependencies>
 	<build>
 		<plugins>
-			 <plugin>
+			<!--<plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>${exec.mainClass}</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+			<plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-dependency-plugin</artifactId>
                <executions>

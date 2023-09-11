@@ -152,7 +152,8 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 		}
 		FileProgram file = this.findOneByNameAndPath(fileName, filePath);
 		if (file != null) {
-			if (file.getId() != fId) {
+			long id = file.getId();
+			if (id != fId) {
 				throw new RuntimeException("file path has exists!");
 			}
 		} else {

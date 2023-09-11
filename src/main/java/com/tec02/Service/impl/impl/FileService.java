@@ -153,7 +153,6 @@ public class FileService extends BaseService<FileDto, File> {
 	}
 
 	public FileDto updateFilePath(UploadFileRequest entity) {
-		System.out.println(entity);
 		Long fgId = entity.getParentId();
 		Long fId = entity.getId();
 		String fileName = entity.getName();
@@ -169,8 +168,9 @@ public class FileService extends BaseService<FileDto, File> {
 		}
 		File file = this.findOneByFileGroupIdAndNameAndPath(fgId, fileName, filePath);
 		if (file != null) {
-			if (file.getId() != fId) {
-				throw new RuntimeException("file path has exists!");
+			long id = file.getId();
+			if (fId != id) {
+				throw new RuntimeException(String.format("file path has exists! %s-%s", id, fId));
 			}
 		} else {
 			file = this.findOneByIdAndFileGroupId(fId, fgId);
