@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.tec02</groupId>
 	<artifactId>teco2</artifactId>
-	<version>1.0.7</version>
+	<version>1.0.8</version>
 	<name>tec02server</name>
 	<description>TE C02 Server</description>
 	<properties>

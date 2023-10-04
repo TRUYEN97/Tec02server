@@ -57,7 +57,7 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 		String des = entity.getDescription();
 		Long fileId = entity.getId();
 		Util.checkFilePath(fileName, filePath);
-		filePath = filePath == null? "": Path.of(filePath).toString();
+		filePath = filePath == null ? "" : Path.of(filePath).toString();
 		if (multipartFile.isEmpty()) {
 			throw new RuntimeException("Failed to store empty file " + multipartFile.getOriginalFilename());
 		}
@@ -174,23 +174,22 @@ public class FileProgramService extends BaseService<FileProgramDto, FileProgram>
 		return ModelMapperUtil.map(fileProgramRepo.save(file), FileDto.class);
 	}
 
-	public FileVersionPathDto getFileVersion(Long id, String version) {
-		FileProgramDto fileDto = this.findOneDto(id);
-		VersionProgram versionDto;
-		if (version == null) {
-			versionDto = this.versionFileProgramRepo.findFirstByFileProgramIdOrderByCreateTimeDesc(id).orElse(null);
-		} else {
-			versionDto = this.versionFileProgramRepo.findOneByFileProgramIdAndName(id, version).orElse(null);
-		}
-		if (versionDto == null) {
-			throw new RuntimeException(String.format("Version %s not found!", version));
-		}
+	public FileVersionPathDto getFileVersion(Long id, String versionCode) {
+		FileProgram fileProgram = this.findOne(id);
 		FileVersionPathDto fileVersionDto = new FileVersionPathDto();
-		fileVersionDto.setFilename(fileDto.getName());
-		fileVersionDto.setFilepath(fileDto.getPath());
-		fileVersionDto.setMd5(versionDto.getMd5());
-		fileVersionDto.setLocalPath(versionDto.getPath());
-		return fileVersionDto;
+		fileVersionDto.setFilename(fileProgram.getName());
+		fileVersionDto.setFilepath(fileProgram.getPath());
+		String verName;
+		for (VersionProgram version : fileProgram.getVersions()) {
+			verName = version.getName();
+			if ((versionCode == null && version.isEnable()) || (verName != null && verName.equals(versionCode))) {
+				fileVersionDto.setMd5(version.getMd5());
+				fileVersionDto.setLocalPath(version.getPath());
+				return fileVersionDto;
+			}
+		}
+		throw new RuntimeException(String.format("Version %s not found!", versionCode));
+
 	}
 
 	public DownloadFileResponse downloadFile(Long id, String version) {

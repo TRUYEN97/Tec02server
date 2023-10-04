@@ -55,7 +55,7 @@ public class FileService extends BaseService<FileDto, File> {
 		Long fgroupID = entity.getParentId();
 		Long fileId = entity.getId();
 		Util.checkFilePath(fileName, filePath);
-		filePath = filePath == null? "": Path.of(filePath).toString();
+		filePath = filePath == null ? "" : Path.of(filePath).toString();
 		if (fgroupID == null) {
 			throw new RuntimeException("Invalid fgroupID, value == null");
 		}
@@ -190,23 +190,21 @@ public class FileService extends BaseService<FileDto, File> {
 		return ModelMapperUtil.map(fileRepo.save(file), FileDto.class);
 	}
 
-	public FileVersionPathDto getFileVersion(Long id, String version) {
-		FileDto fileDto = this.findOneDto(id);
-		VersionDto versionDto;
-		if (version == null) {
-			versionDto = this.versionFileService.findDtoFirstByFileIdOrderByCreateTimeDesc(id);
-		} else {
-			versionDto = this.versionFileService.findDtoByFileIdAndName(id, version);
-		}
-		if (versionDto == null) {
-			throw new RuntimeException(String.format("Version %s not found!", version));
-		}
+	public FileVersionPathDto getFileVersion(Long id, String versionCode) {
+		File fileDto = this.findOne(id);
 		FileVersionPathDto fileVersionDto = new FileVersionPathDto();
 		fileVersionDto.setFilename(fileDto.getName());
 		fileVersionDto.setFilepath(fileDto.getPath());
-		fileVersionDto.setMd5(versionDto.getMd5());
-		fileVersionDto.setLocalPath(versionDto.getPath());
-		return fileVersionDto;
+		String verName;
+		for (Version version : fileDto.getVersions()) {
+			verName = version.getName();
+			if ((versionCode == null && version.isEnable()) || (verName != null && verName.equals(versionCode))) {
+				fileVersionDto.setMd5(version.getMd5());
+				fileVersionDto.setLocalPath(version.getPath());
+				return fileVersionDto;
+			}
+		}
+		throw new RuntimeException(String.format("Version %s not found!", versionCode));
 	}
 
 	public DownloadFileResponse downloadFile(Long id, String version) {
