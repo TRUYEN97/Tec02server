@@ -24,7 +24,7 @@ import lombok.Setter;
 
 @Setter
 public abstract class BaseApiV1Location<D extends IHaveLocationDto, E extends IHaveLocation> {
-
+	
 	@Autowired
 	protected LocationService locationService;
 

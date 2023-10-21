@@ -2,6 +2,7 @@ package com.tec02.Service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -29,11 +30,11 @@ public class FileSystemStorageService {
 	}
 
 	private String store(MultipartFile file, Path path) {
-		try {
+		try (InputStream inputStream = file.getInputStream()){
 			if (!Files.exists(path.getParent())) {
 				Files.createDirectories(path.getParent());
 			}
-			Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
 			return path.toString();
 		} catch (Exception e) {
 			if (path != null) {
