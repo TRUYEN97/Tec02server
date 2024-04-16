@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
@@ -19,10 +20,10 @@ import lombok.Setter;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Createable<U> extends IdNameEntity implements IidName{
-	@CreatedBy
-	@ManyToOne
-	@JoinColumn(name = "createby", updatable = false)
-	protected U createBy;
+//	@CreatedBy
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@JoinColumn(name = "createby", updatable = false)
+//	protected U createBy;
 	@CreatedDate
 	@Column(name = "createtime", updatable = false, nullable = false)
 	protected Instant createTime;

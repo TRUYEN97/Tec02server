@@ -10,6 +10,7 @@ import com.tec02.model.entity.Createable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
@@ -22,10 +23,10 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseModifiableEnity<U> extends Createable<U> {
 	
-	@ManyToOne
-	@LastModifiedBy
-	@JoinColumn(name = "modifyby")
-	protected U modifyBy;
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@LastModifiedBy
+//	@JoinColumn(name = "modifyby")
+//	protected U modifyBy;
 	@LastModifiedDate
 	@Column(name = "modifytime", nullable = false)
 	protected Instant modifyTime;

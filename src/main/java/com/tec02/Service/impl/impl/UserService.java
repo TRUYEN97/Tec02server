@@ -39,6 +39,7 @@ public class UserService extends BaseService<UserDto, User> implements UserDetai
 		if (entity != null && (password = entity.getPassword()) != null) {
 			entity.setPassword(passwordEncoder.encode(password));
 		}
+		entity.setUserJwt(null);
 		return super.updateDto(id, entity);
 	}
 

@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import com.tec02.model.entity.impl.BaseModifiableEnity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class Role extends BaseModifiableEnity<User> implements GrantedAuthority{
 	/**
 	 * 
 	 */
-	@ManyToMany(mappedBy = "userRoles")
+	@ManyToMany(mappedBy = "userRoles", fetch = FetchType.EAGER)
 	private Set<User> users = new HashSet<>();
 	
 	public void addUser(User user) {

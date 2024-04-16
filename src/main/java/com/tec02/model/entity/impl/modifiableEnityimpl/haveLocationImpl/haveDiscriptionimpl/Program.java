@@ -37,6 +37,7 @@ public class Program extends HaveDescription{
 	@Column(name = "enable", nullable = false)
 	private boolean enable;
 	
+	
 	@ManyToOne
 	@JoinColumn(name = "fileprogram")
 	private FileProgram fileProgram;

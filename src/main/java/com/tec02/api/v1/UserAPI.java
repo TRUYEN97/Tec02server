@@ -60,7 +60,7 @@ public class UserAPI {
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
-
+	
 	@PutMapping("/{id}/roleid")
 	public ResponseEntity<ResponseDto> updateUserWithRole(@RequestParam("ids") List<Long> roleIds,
 			@PathVariable("id") Long userID) {

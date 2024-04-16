@@ -103,6 +103,21 @@ public class ProgramApi extends BaseApiV1Location<ProgramDto, Program> {
 			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
 		}
 	}
+	
+	@GetMapping("/fileprogram/id")
+	public ResponseEntity<ResponseDto> findAppFileId(@RequestParam("id") Long id) {
+		try {
+			Program program = this.programService.findOne(id);
+			FileProgram fileProgram = program.getFileProgram();
+			if (fileProgram == null) {
+				return ResponseDto.toResponse(true, null, "program (%s) not have program file", id);
+			}
+			return ResponseDto.toResponse(true, fileProgram.getId(), "ok", id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseDto.toResponse(false, null, e.getLocalizedMessage());
+		}
+	}
 
 	@PutMapping("/fgroup")
 	public ResponseEntity<ResponseDto> updateProgramFgroup(
